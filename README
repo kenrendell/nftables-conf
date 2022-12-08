@@ -2,6 +2,5 @@ NFTABLES Configuration
 
 Installation:
  * Run 'install.sh' (with root permission)
- * Edit '/etc/nftables/nftables.nft' and '/etc/nftables/bin/update-nft-bogons.sh'
  * Configure service manager to run '/etc/nftables/bin/firewall.sh' at boot
  * Configure scheduler to run '/etc/nftables/bin/update-nft-bogons.sh' at specified times

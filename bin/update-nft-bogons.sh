@@ -17,5 +17,5 @@ curl --parallel --parallel-max 2 --fail --fail-early --retry "${1:-5}" --retry-m
 	--output "$ipv6_bogons_file" 'https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt' \
 	--output "$ipv4_bogons_file" 'https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt' || exit
 
-add_bogons ipv6 inet ingress_filter ipv6_bogons "$ipv6_bogons_file" "${nftables_dir}/add-ipv6-bogons.nft" &
-add_bogons ipv4 inet ingress_filter ipv4_bogons "$ipv4_bogons_file" "${nftables_dir}/add-ipv4-bogons.nft" & wait
+add_bogons ipv6 inet bogons_filter ipv6_bogons "$ipv6_bogons_file" "${nftables_dir}/add-ipv6-bogons.nft" &
+add_bogons ipv4 inet bogons_filter ipv4_bogons "$ipv4_bogons_file" "${nftables_dir}/add-ipv4-bogons.nft" & wait

@@ -38,8 +38,8 @@ table inet filter {
 		limit rate over 100/second burst 5 packets counter drop
 	}
 
-	chain prerouting {
-		type filter hook prerouting priority raw; policy accept;
+	chain prerouting { # After bogons filtering
+		type filter hook prerouting priority raw + 1; policy accept;
 		tcp dport @tcp_port tcp flags syn notrack counter comment "do not track TCP-SYN packets"
 		meta l4proto icmp ip saddr @bad_icmp_host counter drop comment "drop ICMP packets from malicious IP address"
 		meta l4proto igmp ip saddr @bad_igmp_host counter drop comment "drop IGMP packets from malicious IP address"
@@ -81,7 +81,7 @@ table inet filter {
 	}
 }
 
-table inet ingress_filter {
+table inet bogons_filter {
 	set ipv6_bogons { # Do not edit this set
 		comment "reserved and unallocated IPv6 addresses"
 		type ipv6_addr; flags interval;
@@ -110,10 +110,9 @@ table inet ingress_filter {
 		ip saddr @ipv4_bogons counter drop
 	}
 
-	chain filter {
-		meta nfproto vmap { ipv6: jump ipv6_bogons_filter, ipv4: jump ipv4_bogons_filter }
+	chain prerouting {
+		type filter hook prerouting priority raw; policy accept;
+		iiftype != loopback meta nfproto vmap { ipv6: jump ipv6_bogons_filter, ipv4: jump ipv4_bogons_filter }
+		counter comment "count accepted packets"
 	}
-
-	#chain dev0 { type filter hook ingress device $ethernet priority filter; policy accept; goto filter; }
-	#chain dev1 { type filter hook ingress device $wlan priority filter; policy accept; goto filter; }
 }
