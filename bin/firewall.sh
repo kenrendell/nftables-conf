@@ -1,19 +1,18 @@
 #!/bin/sh
 
-readonly nftables_dir='/etc/nftables' conntrack_max
+readonly nftables_dir='/etc/nftables'
 
 read_nft_cmd() { nft --check --file "$1" && nft --file "$1"; }
 
+read_nft_cmd "${nftables_dir}/nftables.nft" || exit
+read_nft_cmd "${nftables_dir}/add-ipv6-bogons.nft"
+read_nft_cmd "${nftables_dir}/add-ipv4-bogons.nft"
+
 # Disable forwarding
-printf '0\n' > /proc/sys/net/ipv4/conf/all/forwarding
-printf '0\n' > /proc/sys/net/ipv6/conf/all/forwarding
+sysctl --write net.ipv4.conf.all.forwarding=0
+sysctl --write net.ipv6.conf.all.forwarding=0
 
 # Netfilter settings for Synproxy
-printf '1\n' > /proc/sys/net/ipv4/tcp_syncookies
-printf '1\n' > /proc/sys/net/ipv4/tcp_timestamps
-printf '0\n' > /proc/sys/net/netfilter/nf_conntrack_tcp_loose
-
-if read_nft_cmd "${nftables_dir}/nftables.nft"; then
-	read_nft_cmd "${nftables_dir}/add-ipv6-bogons.nft"
-	read_nft_cmd "${nftables_dir}/add-ipv4-bogons.nft"
-fi
+sysctl --write net.ipv4.tcp_syncookies=1
+sysctl --write net.ipv4.tcp_timestamps=1
+sysctl --write net.netfilter.nf_conntrack_tcp_loose=0

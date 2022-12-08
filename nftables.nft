@@ -15,7 +15,7 @@ table inet filter {
 	set tcp_port {
 		comment "allowed TCP ports"
 		type inet_service; flags interval;
-		elements = { 22 }
+		elements = { 22, 6600 }
 	}
 
 	set udp_port {
